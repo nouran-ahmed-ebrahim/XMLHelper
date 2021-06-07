@@ -4,9 +4,9 @@
 
 class singelNode : public Node
 {
-	string nodeValue;
+	wstring nodeValue;
 public :
-	singelNode(string , string);
-	void saveNode(int , ofstream &);
+	singelNode(wstring , wstring);
+	void saveNode(int , wofstream &);
 };
 
