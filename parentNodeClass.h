@@ -7,8 +7,8 @@ class parentNodeClass: public Node
 	list<Node *>childNodes;
 
 public:
-	parentNodeClass(string);
-	void saveNode(int , ofstream &);
+	parentNodeClass(wstring);
+	void saveNode(int , wofstream &);
 	void addNode(Node*);
 
 };
