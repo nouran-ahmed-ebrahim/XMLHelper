@@ -8,7 +8,7 @@ XMLData::XMLData( Node * data)
 }
 
 
-void XMLData::savexXMLData(ofstream& path)
+void XMLData::savexXMLData(wofstream& path)
 {
 	data->saveNode(0, path);
 }
