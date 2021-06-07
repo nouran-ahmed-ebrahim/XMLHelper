@@ -5,12 +5,12 @@ using namespace std;
 
 class Node
 {
-	string nodeName;
+	wstring nodeName;
 
 public:
-	 Node(string name);
-	 virtual void saveNode(int , ofstream &) = 0;
+	 Node(wstring name);
+	 virtual void saveNode(int , wofstream &) = 0;
 protected:
-	 string getNodeName();
+	 wstring getNodeName();
 };
 
