@@ -3,12 +3,17 @@
 #include <fstream>
 #include <stack>
 #include <assert.h>
+#include <codecvt>
 
 XMLHelper::XMLHelper(){}
 
 void XMLHelper::saveData(string path, XMLData file)
 {
-	ofstream XMLFile(path, ios::out);
+	wofstream XMLFile(path, ios::out);
+
+	// to write arabic in file
+	XMLFile.imbue(locale("en_US.UTF-8"));
+
 	file.savexXMLData(XMLFile);
 	XMLFile.close();
 }
@@ -17,11 +22,12 @@ void XMLHelper::saveData(string path, XMLData file)
 XMLData XMLHelper::loadData(string path)
 {
 
-	assert(validateXMLFile(path));
+	assert( validateXMLFile(path));
 	
-	ifstream XFile(path, ios::in);
+	wifstream XFile(path);
+	XFile.imbue(locale("en_US.UTF-8"));
 
-	string Line, name, value;
+	wstring Line , name , value;
 	int firsLessThan, firstGreaterThan, secondLessThan;
 
 	stack<Node*>parentNodes;
@@ -32,7 +38,7 @@ XMLData XMLHelper::loadData(string path)
 	{
 		firsLessThan = Line.find('<');
 		firstGreaterThan = Line.find('>');
-		secondLessThan = Line.find("</");
+		secondLessThan = Line.find(L"</");
 
 		name = cutName(Line, firsLessThan, firstGreaterThan);
 
@@ -45,13 +51,21 @@ XMLData XMLHelper::loadData(string path)
 			}
 			parentNodes.push(currentNode);
 		}
-		else if( Line[Line.find("<")+1] !='/')  // is a single node ( "</" pos is not at the first)
+		else if( Line[Line.find('<') + 1] != '/')  // is a single node ( "< / " pos is not at the first)
 		{
 			value = cutValue(Line, firstGreaterThan , secondLessThan);
 
 			currentNode = new singelNode(name, value);
-			((parentNodeClass*)parentNodes.top())->addNode(currentNode);
 
+			if (name != L"root")
+			{
+				((parentNodeClass*)parentNodes.top())->addNode(currentNode);
+			}
+			else
+			{
+				Data = currentNode;
+				break;
+			}
 		}
 		else
 		{
@@ -67,13 +81,13 @@ XMLData XMLHelper::loadData(string path)
 	return newXml;
 }
 
-string XMLHelper::cutName(string line, int firstLessThan, int firstGreaterThan) { //swap
+wstring XMLHelper::cutName(wstring line, int firstLessThan, int firstGreaterThan) { //swap
 	int nameLength = firstGreaterThan - firstLessThan - 1; // forget -1 
 
 	return line.substr(firstLessThan + 1, nameLength);
 }
 
-string XMLHelper::cutValue(string line, int firstGreaterThan, int secondLessThan) {
+wstring XMLHelper::cutValue(wstring line, int firstGreaterThan, int secondLessThan) {
 	int valueLength = secondLessThan - firstGreaterThan - 1; // -1
 
 	return line.substr(firstGreaterThan + 1, valueLength);
@@ -81,32 +95,39 @@ string XMLHelper::cutValue(string line, int firstGreaterThan, int secondLessThan
 
 bool XMLHelper::validateXMLFile(string path)
 {
-//	return  validateBrackts(path) && cheackAfterRoot(path) && validateRoot(path) && validateTagClosing(path);
-	return 0;
+	return  validateBrackets(path) && cheackAfterRoot(path) && validateRoot(path) && validateTagClosing(path);
 }
 
-bool XMLHelper::validateBrackts(string path)
+bool XMLHelper::validateBrackets(string path)
 {
-	ifstream file(path, ios::in);
+	wifstream file(path, ios::in);
+	file.imbue(locale("en_US.UTF-8"));
 
-	int firstGrater, firstLess, lastGrater,lastLess;
-	string line;
+	int firstLess, firstGrater, lastLess,lastGrater;
+	wstring line ;
+	string lineCopy;
+
 	while (getline(file, line))
 	{
-		 firstGrater = line.find('<');
-		 firstLess = line.find('>');
+		// creating wstring to string convertor
+		using convert_type = codecvt_utf8<wchar_t>;
+		wstring_convert< convert_type, wchar_t> convertor;
 
-		if (cheackPostions(firstGrater,firstLess) || checkNumOfSpaces(line.substr(0, firstLess)))     // check that all chars at the begain are only space
+		lineCopy = convertor.to_bytes(line);
+		 firstLess = line.find('<');
+		 firstGrater = line.find('>');
+
+		if (!checkBracketsPostions(firstLess,firstGrater) || !checkNumOfSpaces(lineCopy.substr(0, firstLess)))     // check that all chars at the begain are only space
 		{
 			file.close();
 			return false;
 		}
 
-		if (firstGrater != line.size())    //  not parent tag
+		if (firstGrater != line.size()-1)    //  not parent tag (single node)
 		{
 			lastGrater = line.rfind('>');
-			lastLess = line.rfind("</");
-			if (cheackPostions(lastGrater, lastLess) ||  lastGrater !=line.size() )
+			lastLess = line.rfind(L"</");
+			if (!checkBracketsPostions(lastLess, lastGrater) ||  lastGrater !=line.size()-1 )
 			{
 				file.close();
 				return false;
@@ -114,56 +135,119 @@ bool XMLHelper::validateBrackts(string path)
 		}
 	}
 	file.close();
-	return true;
+
+   	return true;
 }
 
 bool XMLHelper::validateTagClosing(string path)
 {
-	return true;
+	wifstream file(path, ios::in);
+	file.imbue(locale("en_US.UTF-8"));
+	wstring line , name , sName ;
+
+	int firstLess, firstGrater, lastLess, lastGrater;
+	stack<wstring> nodes;
+
+	while (getline(file, line))
+	{
+		firstLess = line.find('<');
+		firstGrater = line.find('>');
+		name = cutName(line,firstLess, firstGrater);
+
+		if (name[0] != '/') 
+		{
+			if (firstGrater != line.size()-1)    //  not parent tag (single node)
+			{
+				lastGrater = line.rfind('>');
+				lastLess = line.rfind(L"</");
+				sName = cutName(line, lastLess + 1, lastGrater);
+				if (sName != name)
+					return false;
+			}
+			else {
+					nodes.push(name);
+			}
+		}
+		else {
+			sName = cutName(line, firstLess + 1, firstGrater);
+			if (sName == nodes.top())
+				nodes.pop();
+			else
+				return false;
+		}
+	}
+	
+	file.close();
+	return (nodes.empty());
 }
 
-bool XMLHelper::validateRoot(string path)
+bool XMLHelper::validateRoot(string path) //start with root
 {
-	ifstream file(path, ios::in);
+	wifstream file(path, ios::in);
+	file.imbue(locale("en_US.UTF-8"));
 	int grater, less;
 
-	string line,name;
+	wstring line , name ;
 
     getline(file, line);
 	
 	grater = line.find('>');
 	less = line.find('<');
-	name=cutName(line, grater, less);
+	name=cutName(line, less,grater);
     file.close();
 	
-	return name !="root";
+	return name == L"root"; 
 }
 
-bool XMLHelper::checkNumOfSpaces(string str)
+bool XMLHelper::checkNumOfSpaces(string str) //Check for no characters before tag
 {
-	return count(str.begin() ,str.end(), ' ') != str.size() ;
+	return count(str.begin() ,str.end(), ' ') == str.size(); 
 }
 
-bool XMLHelper::cheackPostions(int fIdx, int sIdx)  //  indx exist / > < / or empty
+bool XMLHelper::checkBracketsPostions(int fIdx, int sIdx) //check brackets existence, tag name existence and brackets position (< > not > <)
 {
-	return  fIdx == string::npos || sIdx == string::npos ||fIdx < sIdx || fIdx + 1 == sIdx;
+	return  fIdx != string::npos || sIdx != string::npos ||fIdx < sIdx || fIdx + 1 != sIdx; 
 }
 
-string XMLHelper::cheackAfterRoot(string path)
+bool XMLHelper::cheackAfterRoot(string path) //check for no characters after root tag
 {
-	ifstream file(path, ios::in);
-	string line ,name;
-	int grater, less;
+	wstring lastLine = getLastLine(path) ;
+	return (lastLine.find(L"</root>")==1);
+}
 
-	file.seekg(-1, ios::end);
-	getline(file,line);
+wstring XMLHelper::getLastLine(string path) {
 
-	grater = line.find('>');
-	less = line.find("</");
-	name = cutName(line, grater, less);
-	file.close();
+	wifstream file(path, ios::in);
+	file.imbue(locale("en_US.UTF-8"));
+	wstring lastLine ;
 
-	//return name != "root";
-	return line;
+
+	if (file.is_open()) {
+		file.seekg(-1, ios_base::end);                // go to one spot before the EOF
+
+		bool keepLooping = true;
+		while (keepLooping) {
+			wchar_t ch;
+			file.get(ch);
+
+			if ((int)file.tellg() <= 1) {             // If the data was at or before the 0th byte
+				file.seekg(0);                       // The first line is the last line
+				keepLooping = false;                // So stop there
+			}
+			else if (ch == '\n') {                   // If the data was a newline
+				keepLooping = false;                // Stop at the current position.
+			}
+			else {                                  // If the data was neither a newline nor at the 0 byte
+				file.seekg(-2, ios_base::cur);        // Move to the front of that data, then to the front of the data before it
+			}
+		}
+
+
+		getline(file, lastLine);                      // Read the current line
+
+		file.close();
+	}
+
+	return lastLine;
 }
 
