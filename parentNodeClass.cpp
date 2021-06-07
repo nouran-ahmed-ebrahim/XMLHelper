@@ -2,9 +2,9 @@
 #include <iostream>
 
 
-parentNodeClass::parentNodeClass(string nodeName):Node(nodeName){}
+parentNodeClass::parentNodeClass(wstring nodeName):Node(nodeName){}
 
-void parentNodeClass::saveNode(int spaces , ofstream & path)
+void parentNodeClass::saveNode(int spaces , wofstream & path)
 {
 	for (int i = 0; i < spaces; i++)
 		path << "  ";
