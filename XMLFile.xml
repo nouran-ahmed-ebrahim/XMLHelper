@@ -1,8 +1,121 @@
 <root>
-  <Students>
-    <Nouran>  8/5/2001  </Nouran>
-    <Sama>  15/4/2001  </Sama>
-    <MennaTullah>  23/7/2001  </MennaTullah>
-    <Nada>  10/10/2001  </Nada>
-  </Students>
+    <BullseyeLocationImport>
+        <HeaderInfo>
+            <BullseyeClientID>7058</BullseyeClientID>
+            <AdminApiKey>7c853af7-00ed-46af-8601-74641f3a9779</AdminApiKey>
+            <DateGenerated>2016-12-31T12:00:00.000</DateGenerated>
+            <ClientNotifyEmail>imports@bullseyelocations.com</ClientNotifyEmail>
+        </HeaderInfo>
+        <BullseyeLocations>
+            <Location>
+                <ThirdPartyID>BULLSEYE12345</ThirdPartyID>
+                <Name>Bullseye Locations</Name>
+                <URL>www.bullseyelocations.com</URL>
+                <Address1>3121 Rte. 22 East</Address1>
+                <City>Branchburg</City>
+                <PostCode>08876</PostCode>
+                <StateAbbr>NJ</StateAbbr>
+                <CountryCode>US</CountryCode>
+                <EmailAddress>info@bullseyelocations.com</EmailAddress>
+                <PhoneNumber>732-868-8463</PhoneNumber>
+                <ContactName>Tom Flynn</ContactName>
+                <ContactPosition>Account Manager</ContactPosition>
+                <ContactURL>www.bullseyelocations.com</ContactURL>
+                <InternetLocation>false</InternetLocation>
+                <ResponsivenessRating>Very Fast</ResponsivenessRating>
+                <LeadManager>false</LeadManager>
+                <StoreLocator>true</StoreLocator>
+                <TimeZoneID>17</TimeZoneID>
+                <WednesdayOpen>10:00:00</WednesdayOpen>
+                <WednesdayClose>17:30:00</WednesdayClose>
+                <FridayOpen>08:00:00</FridayOpen>
+                <FridayClose>19:30:00</FridayClose>
+                <SaturdayOpen>08:00:00</SaturdayOpen>
+                <SaturdayClose>19:30:00</SaturdayClose>
+                <SundayOpen>08:00:00</SundayOpen>
+                <SundayClose>15:30:00</SundayClose>
+                <Latitude>40.600644</Latitude>
+                <Longitude>-74.686822</Longitude>
+                <ImageURL>http://sitecdn.bullseye.netdna-cdn.com/wp-content/uploads/2015/05/storelocatorscreensdemo.jpg</ImageURL>
+                <LocAttribute>
+                    <Name>TestText</Name>
+                    <ValueString>Store Locator Software for Marketers and Developers</ValueString>
+                </LocAttribute>
+                <LocAttribute>
+                    <Name>TestMemo</Name>
+                    <ValueString>Bullseye Locations is the leader in integrated location solutions and turn-key store locator software, dealer locator software and store finder software.</ValueString>
+                </LocAttribute>
+                <LocAttribute>
+                    <Name>RankedTestNumeric</Name>
+                    <ValueInteger>1</ValueInteger>
+                </LocAttribute>
+                <LocAttribute>
+                    <Name>CustomLocatorsTestYesNo</Name>
+                    <ValueBoolean>true</ValueBoolean>
+                </LocAttribute>
+                <LocAttribute>
+                    <Name>TestDropDown</Name>
+                    <ValueOptionText>PartnerProgram</ValueOptionText>
+                </LocAttribute>
+                <LocAttribute>
+                    <Name>BestStoreLocatorTestRadioGroup</Name>
+                    <ValueOptionText>BullseyeLocations</ValueOptionText>
+                </LocAttribute>
+                <LocAttribute>
+                    <Name>ProductTestCheckBoxGroup</Name>
+                    <ValueOptionText>Store Locator</ValueOptionText>
+                    <ValueOptionText>Facebook Plugin</ValueOptionText>
+                    <ValueOptionText>WordPress Plugin</ValueOptionText>
+                    <ValueOptionText>Shopify App</ValueOptionText>
+                    <ValueOptionText>Widget</ValueOptionText>
+                    <ValueOptionText>Lead Manager</ValueOptionText>
+                    <ValueOptionText>Salesforce Integration</ValueOptionText>
+                </LocAttribute>
+                <LocAttribute>
+                    <Name>TestLink</Name>
+                    <ValueLinkURL>www.bullseyelocations.com</ValueLinkURL>
+                    <ValueLinkDisplayText>Bullseye Locations</ValueLinkDisplayText>
+                </LocAttribute>
+                <Category>
+                    <ID>16478</ID>
+                </Category>
+                <Category>
+                    <Name>Store Locator Software</Name>
+                </Category>
+                <SEO>
+                    <Title>Bullseye Locations</Title>
+                    <MetaDescription>Advanced dealer and store locator software platform with integrated coupons, lead management, programmable API, and smart tools for engaging local store</MetaDescription>
+                </SEO>
+                <LandingPageImage>
+                    <URL>http://www.bullseyelocations.com/wp-content/uploads/2015/07/bullseye_20121112.png</URL>
+                </LandingPageImage>
+                <LandingPageImage>
+                    <URL>http://sitecdn.bullseye.netdna-cdn.com/wp-content/uploads/2015/05/icon_2011.png</URL>
+                </LandingPageImage>
+                <SocialMediaLinks>
+                    <Facebook>BullseyeStoreLocator</Facebook>
+                    <Twitter>bllsyelocations</Twitter>
+                    <GooglePlus>101220050852179241478</GooglePlus>
+                    <Pinterest>104216178849247159</Pinterest>
+                    <LinkedIn>2867241</LinkedIn>
+                    <Yelp>bullseye</Yelp>
+                    <Instagram>bullseyelocations</Instagram>
+                </SocialMediaLinks>
+                <HolidayHours>
+                    <Holiday>
+                        <ID>87</ID>
+                        <Date>2018-03-17</Date>
+                        <OpeningTime>09:30:00</OpeningTime>
+                        <ClosingTime>20:00:00</ClosingTime>
+                    </Holiday>
+                    <Holiday>
+                        <Name>Special Hours - Sale</Name>
+                        <Date>2018-03-10</Date>
+                        <OpeningTime>08:00:00</OpeningTime>
+                        <ClosingTime>22:00:00</ClosingTime>
+                    </Holiday>
+                </HolidayHours>
+            </Location>
+        </BullseyeLocations>
+    </BullseyeLocationImport>
 </root>
