@@ -9,9 +9,5 @@ class XMLData
 public:
 
 	XMLData(Node*);
-	void savexXMLData(ofstream&);
+	void savexXMLData(wofstream&);
 };
-
-/*
-
-*/
