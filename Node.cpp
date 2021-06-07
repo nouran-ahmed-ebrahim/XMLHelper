@@ -1,13 +1,13 @@
 #include "Node.h"
 #include <iostream>
 
-Node::Node(string nodeName)
+Node::Node(wstring nodeName)
 {
 	this->nodeName = nodeName;
 }
 
 
-string Node::getNodeName()
+wstring Node::getNodeName()
 {
 	return nodeName;
 }
