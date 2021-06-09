@@ -5,7 +5,28 @@
 #include <assert.h>
 #include <codecvt>
 
-XMLHelper::XMLHelper(){}
+bool XMLHelper::isErrorFound = false ;
+wstring XMLHelper::errorInfo = L"";
+bool XMLHelper::isRootFound = false;
+
+XMLHelper::XMLHelper(){
+}
+
+wstring XMLHelper::getErrorInfo()
+{
+	return errorInfo;
+}
+
+void XMLHelper::clearPreviousData()
+{
+	XMLHelper::isRootFound = false;
+	XMLHelper::errorInfo = L"";
+	XMLHelper::isErrorFound = false;
+}
+
+bool XMLHelper::getIsErrorFound(){
+	return isErrorFound;
+}
 
 void XMLHelper::saveData(string path, XMLData file)
 {
@@ -22,7 +43,11 @@ void XMLHelper::saveData(string path, XMLData file)
 XMLData XMLHelper::loadData(string path)
 {
 
-	assert( validateXMLFile(path));
+	if (validateXMLFile(path) == false)
+	{
+		XMLHelper::isErrorFound= true;
+		return NULL ;
+	}
 	
 	wifstream XFile(path);
 	XFile.imbue(locale("en_US.UTF-8"));
@@ -81,6 +106,7 @@ XMLData XMLHelper::loadData(string path)
 	return newXml;
 }
 
+
 wstring XMLHelper::cutName(wstring line, int firstLessThan, int firstGreaterThan) { //swap
 	int nameLength = firstGreaterThan - firstLessThan - 1; // forget -1 
 
@@ -94,8 +120,13 @@ wstring XMLHelper::cutValue(wstring line, int firstGreaterThan, int secondLessTh
 }
 
 bool XMLHelper::validateXMLFile(string path)
-{
-	return  validateBrackets(path) && cheackAfterRoot(path) && validateRoot(path) && validateTagClosing(path);
+{	
+	// order is important
+	// validateRootExistence after validateBrackets to get the correct error. 
+	// validateRootExistence before the other to save the time.
+	// validateTagClosing after validateBrackets to work correctly. 
+	// checkAfterRoot after validateTagClosing to get the correct error. (it will check if there is anything after root closing tag not its existence )
+	return validateBrackets(path) && validateRootExistence(path) && validateTagClosing(path) && checkAfterRoot(path) ; 
 }
 
 bool XMLHelper::validateBrackets(string path)
@@ -103,12 +134,14 @@ bool XMLHelper::validateBrackets(string path)
 	wifstream file(path, ios::in);
 	file.imbue(locale("en_US.UTF-8"));
 
-	int firstLess, firstGrater, lastLess,lastGrater;
+	int firstLess, firstGrater, lastLess,lastGrater , lineNum = 0;
 	wstring line ;
 	string lineCopy;
 
 	while (getline(file, line))
 	{
+		lineNum++;
+
 		// creating wstring to string convertor
 		using convert_type = codecvt_utf8<wchar_t>;
 		wstring_convert< convert_type, wchar_t> convertor;
@@ -120,6 +153,15 @@ bool XMLHelper::validateBrackets(string path)
 		if (!checkBracketsPostions(firstLess,firstGrater) || !checkNumOfSpaces(lineCopy.substr(0, firstLess)))     // check that all chars at the begain are only space
 		{
 			file.close();
+			if (!checkBracketsPostions(firstLess, firstGrater))
+			{
+				XMLHelper::errorInfo = L"There is a mistake in open tag brackets in line. Mistake in line ";
+			}
+			else
+			{
+				XMLHelper::errorInfo = L"Nothing should be written before open tag in line. Mistake in line ";
+			}
+			XMLHelper::errorInfo.push_back(lineNum + '0');
 			return false;
 		}
 
@@ -127,9 +169,19 @@ bool XMLHelper::validateBrackets(string path)
 		{
 			lastGrater = line.rfind('>');
 			lastLess = line.rfind(L"</");
+
 			if (!checkBracketsPostions(lastLess, lastGrater) ||  lastGrater !=line.size()-1 )
 			{
 				file.close();
+				if (!checkBracketsPostions(lastLess, lastGrater))
+				{
+					XMLHelper::errorInfo = L"There is a mistake in closing tag brackets. Mistake in line ";
+				}
+				else
+				{
+					XMLHelper::errorInfo = L"Nothing should be written after  closing tag. Mistake in line ";
+				}
+				XMLHelper::errorInfo.push_back(lineNum + '0');
 				return false;
 			}
 		}
@@ -145,24 +197,34 @@ bool XMLHelper::validateTagClosing(string path)
 	file.imbue(locale("en_US.UTF-8"));
 	wstring line , name , sName ;
 
-	int firstLess, firstGrater, lastLess, lastGrater;
+	int firstLess, firstGrater, lineNum = 0;
 	stack<wstring> nodes;
 
 	while (getline(file, line))
 	{
+		lineNum++;
+
 		firstLess = line.find('<');
 		firstGrater = line.find('>');
 		name = cutName(line,firstLess, firstGrater);
+		
+		if (isRootUnique(name) == false)
+		{
+			XMLHelper::errorInfo = L"Root tag can't be repeted. Mistake in line";
+			XMLHelper::errorInfo.push_back(lineNum + '0');
+			return false;
+		}
 
 		if (name[0] != '/') 
 		{
 			if (firstGrater != line.size()-1)    //  not parent tag (single node)
 			{
-				lastGrater = line.rfind('>');
-				lastLess = line.rfind(L"</");
-				sName = cutName(line, lastLess + 1, lastGrater);
-				if (sName != name)
+				if (isTagNamesMatching(line, name) == false)
+				{
+					XMLHelper::errorInfo = L"Closing Tag name is not correct in line ";
+				    XMLHelper::errorInfo.push_back( lineNum+'0');
 					return false;
+				}
 			}
 			else {
 					nodes.push(name);
@@ -173,7 +235,10 @@ bool XMLHelper::validateTagClosing(string path)
 			if (sName == nodes.top())
 				nodes.pop();
 			else
+			{
+				XMLHelper::errorInfo = L"Tag "+ nodes.top() + L" forgotten to be closed or Tag "+ sName + L" didn't be opened";
 				return false;
+			}
 		}
 	}
 	
@@ -181,7 +246,7 @@ bool XMLHelper::validateTagClosing(string path)
 	return (nodes.empty());
 }
 
-bool XMLHelper::validateRoot(string path) //start with root
+bool XMLHelper::validateRootExistence(string path) //start with root
 {
 	wifstream file(path, ios::in);
 	file.imbue(locale("en_US.UTF-8"));
@@ -196,6 +261,10 @@ bool XMLHelper::validateRoot(string path) //start with root
 	name=cutName(line, less,grater);
     file.close();
 	
+	if (name != L"root")
+	{
+		XMLHelper::errorInfo = L"Root tag should be at the first";
+	}
 	return name == L"root"; 
 }
 
@@ -206,13 +275,46 @@ bool XMLHelper::checkNumOfSpaces(string str) //Check for no characters before ta
 
 bool XMLHelper::checkBracketsPostions(int fIdx, int sIdx) //check brackets existence, tag name existence and brackets position (< > not > <)
 {
-	return  fIdx != string::npos || sIdx != string::npos ||fIdx < sIdx || fIdx + 1 != sIdx; 
+	return  fIdx != string::npos && sIdx != string::npos && fIdx < sIdx && fIdx + 1 != sIdx; 
 }
 
-bool XMLHelper::cheackAfterRoot(string path) //check for no characters after root tag
+bool XMLHelper::checkAfterRoot(string path) //check for no characters after root tag
 {
 	wstring lastLine = getLastLine(path) ;
-	return (lastLine.find(L"</root>")==1);
+
+	if(lastLine.find(L"</root>") == string::npos)
+	{
+		XMLHelper::errorInfo = L"  Closing root tag should be the last thing in the file";
+	}
+	return (lastLine.find(L"</root>")>=0);
+}
+
+bool XMLHelper::isTagNamesMatching(wstring line , wstring openTagName)
+{
+	wstring closeTagName;
+	int lastGrater, lastLess;
+
+	lastGrater = line.rfind('>');
+	lastLess = line.rfind(L"</");
+	closeTagName = cutName(line, lastLess + 1, lastGrater);
+	return openTagName == closeTagName;
+}
+
+bool XMLHelper::isRootUnique(wstring tagName)
+{
+
+	if (tagName == L"root")
+	{
+		if (isRootFound == false)
+		{
+			isRootFound = true;
+			return true;
+		}
+		else
+			return false;
+	}
+
+	return true;
 }
 
 wstring XMLHelper::getLastLine(string path) {
