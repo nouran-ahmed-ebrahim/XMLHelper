@@ -1,26 +1,28 @@
 #pragma once
-#include "XMLDate.h"
+#include "XMLData.h"
+#include <vector>
 
 
 class XMLHelper
 {
 	static  bool isErrorFound;
 	static wstring errorInfo;
-	static bool isRootFound ;
-    static wstring cutName(wstring, int, int);
-	static wstring cutValue(wstring, int, int);
-	static bool validateBrackets(string);
-	static bool validateTagClosing(string);
-	static bool validateRootExistence(string);
-	static bool checkNumOfSpaces(string ); 
-	static wstring getLastLine(string);
-	static bool checkBracketsPostions(int, int);
-	static bool checkAfterRoot(string path);
+
+	static bool validateBrackets(wifstream & ,int);
+	static bool validateTagClosing(wifstream & ,int);
+	static bool validateRootExistence(wifstream &);
+	static bool checkAfterRoot(wifstream & ,int&);
+
+	static bool checkNumOfSpaces(wstring ); 
+	static bool checkBracketsPostions(int, int );
 	static bool isTagNamesMatching(wstring, wstring);
-	static bool isRootUnique(wstring);
-	
+
+	static wstring cutSubStr(wstring, int, int);
+	static wstring getLastLine(wifstream& , int&);
+	static wstring getFirstLine(wifstream&);
+
+
 public:
-	XMLHelper();
 	static void clearPreviousData();
 	static bool getIsErrorFound();
 	static wstring getErrorInfo();
@@ -30,4 +32,3 @@ public:
 	
 
 };
-
