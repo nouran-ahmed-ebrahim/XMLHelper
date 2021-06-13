@@ -22,7 +22,6 @@ int main()
 		cout << "1) Load Data from file     2) Save data in file      3) Check file      4) Close\n";
 		cout << "Operation Number : ";
 		cin >> operationNum;
-
 		switch (operationNum)
 		{
 		case 1:
@@ -67,7 +66,7 @@ void saveOption()
 {
 	if (fileData.isEmpty())
 	{
-		cout << "There is no data were loaded\n\n";
+		cout << "There is no data uploaded\n\n";
 		return;
 	}
 	string filePath;
@@ -100,3 +99,4 @@ void checkOption()
 	XMLHelper::clearPreviousData();
 
 }
+
